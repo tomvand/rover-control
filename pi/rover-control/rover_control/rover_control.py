@@ -30,6 +30,9 @@ class RoverControl(object):
                  **kwargs):
         super().__init__()
 
+        # Set up watchdog time
+        self.last_read = None
+        self.read_notified = False
         # Set up incoming serial device
         self.tty_in = serial.Serial(
             port=tty_in,
@@ -43,6 +46,17 @@ class RoverControl(object):
         )
 
     def read_command(self):
+        # Update watchdog
+        now = time.time()
+        if self.last_read is None:
+            self.last_read = now
+        if now - self.last_read > 0.20:
+            if not self.read_notified:
+                logging.warning('Command receive time exceeded!')
+                self.read_notified = True
+        else:
+            self.read_notified = False
+        # Read and parse
         try:
             inline = self.tty_in.readline()  # type: bytes
             inline = inline.decode()
@@ -101,4 +115,4 @@ if __name__ == '__main__':
     c = RoverControl(**vars(args))
     while True:
         c.loop()
-        time.sleep(0.05)
+        time.sleep(0.01)
