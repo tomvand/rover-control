@@ -53,7 +53,8 @@ class RoverControl(object):
 
         try:
             assert(len(inline.strip()) == 9)
-            r = parse('{left:d},{right:d}', inline)
+            # r = parse('{left:d},{right:d}', inline)
+            r = (int(inline[:4]), int(inline[5:]))
             cmd = (r['left'], r['right'])
             logging.debug(f'Received command: {cmd}')
             return cmd
