@@ -46,9 +46,10 @@ class RoverControl(object):
         try:
             inline = self.tty_in.readline()  # type: bytes
             inline = inline.decode()
+            inline = inline.strip('\x00')
             inline = inline.strip()
             assert type(inline) == str, f'inline type is not str'
-            assert len(inline) == 10, f'command string is not 10 characters: "{inline}\0" ({len(inline)})'
+            assert len(inline) == 9, f'command string is not 9 characters: "{inline}" ({len(inline)})'
         except Exception as e:
             logging.error(f'Serial readline error: {e}')
             raise e
