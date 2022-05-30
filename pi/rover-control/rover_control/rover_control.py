@@ -13,8 +13,10 @@ import logging
 logging.basicConfig(
     filename='rover_control.log',
     level=logging.DEBUG,
-    format='%(asctime)s (levelname)s: %(message)s'
+    format='%(asctime)s %(levelname)s: %(message)s'
 )
+console = logging.StreamHandler()
+console.setLevel(logging.DEBUG)
 
 
 class RoverControl(object):
