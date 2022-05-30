@@ -112,6 +112,8 @@ if __name__ == '__main__':
     parser.add_argument('tty_out', type=str)
     args = parser.parse_args()
 
+    logging.info(f'\n\nNew log started at {time.asctime()}')
+
     c = RoverControl(**vars(args))
     while True:
         c.loop()
