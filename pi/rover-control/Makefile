@@ -7,7 +7,7 @@ all: venv
 .PHONY: all
 
 run: all
-	(source venv/bin/activate || true) && python -m rover_control.rover_control ($TTY_IN) ($TTY_OUT)
+	(source venv/bin/activate || true) && python -m rover_control.rover_control $(TTY_IN) $(TTY_OUT)
 .PHONY: run
 
 freeze:
