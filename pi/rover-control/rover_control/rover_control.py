@@ -17,6 +17,7 @@ logging.basicConfig(
 )
 console = logging.StreamHandler()
 console.setLevel(logging.DEBUG)
+logging.getLogger().addHandler(console)
 
 
 class RoverControl(object):
