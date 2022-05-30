@@ -46,13 +46,13 @@ class RoverControl(object):
         try:
             inline = self.tty_in.readline()  # type: bytes
             inline = inline.decode()
-            assert(type(inline) == str)
+            assert(type(inline) == str, 'inline type is not str')
         except Exception as e:
             logging.error(f'Serial readline error: {e}')
             raise e
 
         try:
-            assert(len(inline.strip()) == 9)
+            assert(len(inline.strip()) == 9, 'command string is not 9 characters: {inline}')
             # r = parse('{left:d},{right:d}', inline)
             r = {'left': int(inline[:4]), 'right': int(inline[5:])}
             cmd = (r['left'], r['right'])
