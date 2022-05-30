@@ -44,7 +44,8 @@ class RoverControl(object):
 
     def read_command(self):
         try:
-            inline = self.tty_in.readline()
+            inline = self.tty_in.readline()  # type: bytes
+            inline = inline.decode()
             assert(type(inline) == str)
         except Exception as e:
             logging.error(f'Serial readline error: {e}')
