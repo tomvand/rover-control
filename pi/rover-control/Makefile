@@ -1,10 +1,13 @@
 SHELL := /bin/bash
 
+TTY_IN ?= /dev/ttyPPRZ0
+TTY_OUT ?= /dev/ttyArduino0
+
 all: venv
 .PHONY: all
 
 run: all
-	(source venv/bin/activate || true) && python -m rover_control.rover_control
+	(source venv/bin/activate || true) && python -m rover_control.rover_control ($TTY_IN) ($TTY_OUT)
 .PHONY: run
 
 freeze:
