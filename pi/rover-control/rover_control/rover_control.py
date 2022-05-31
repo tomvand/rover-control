@@ -34,17 +34,29 @@ class RoverControl(object):
         self.last_read = None
         self.read_notified = False
         # Set up incoming serial device
-        self.tty_in = serial.Serial(
-            port=tty_in,
-            baudrate=baud_in,
-            timeout=0.10
-        )
+        while True:
+            try:
+                self.tty_in = serial.Serial(
+                    port=tty_in,
+                    baudrate=baud_in,
+                    timeout=0.10
+                )
+                break
+            except Exception as e:
+                logging.error(f'Unable to open {tty_in}: {e}, retrying...')
+                time.sleep(2)
         # Set up outgoing serial device
-        self.tty_out = serial.Serial(
-            port=tty_out,
-            baudrate=baud_out,
-            timeout=0.10
-        )
+        while True:
+            try:
+                self.tty_out = serial.Serial(
+                    port=tty_out,
+                    baudrate=baud_out,
+                    timeout=0.10
+                )
+                break
+            except Exception as e:
+                logging.error(f'Unable to open {tty_out}: {e}, retrying...')
+                time.sleep(2)
 
     def read_command(self):
         # Update watchdog
