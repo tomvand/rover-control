@@ -15,7 +15,7 @@ static struct rover_t {
 } rover;
 
 
-static void apply_command(int8_t left, int8_t right) {
+static void apply_command(int left, int right) {
   digitalWrite(M1_DIR, left < 0);
   digitalWrite(M2_DIR, right >= 0);
   analogWrite(M1_PWM, abs(left));
@@ -35,24 +35,20 @@ void setup() {
 
 void loop() {
   // Read serial data
-  byte left, right;
   int n = Serial.available();
-  if (n > 3) {
+  if (n > 0) {
     if (n > 512) n = 512;
     n = Serial.readBytes(rover.cmd, n);
-    // Find latest stop byte
-    byte *p = rover.cmd + n - 1;
-    while (p >= rover.cmd + 2) {
-      if (*p == 0x80) {
-        // Stop byte found
-        Serial.println("Stop byte found");
-        left = *(p - 2);
-        right = *(p - 1);
-        Serial.println(left);
-        apply_command(left, right);
-        rover.watchdog_time = millis() + WATCHDOG_PERIOD_MS;
-      }
-    }
+    // Read command from *latest* byte
+    byte cmd = rover.cmd[n - 1];
+    uint8_t left_val = (cmd & 0x70) >> 4;
+    uint8_t right_val = (cmd & 0x07);
+    bool left_sign = (cmd & 0x80);
+    bool right_sign = (cmd & 0x08);
+    int left = (left_sign ? -1 : 1) * (int)left_val;
+    int right = (right_sign ? -1 : 1) * (int)right_val;
+    apply_command(left, right);
+    rover.watchdog_time = millis() + WATCHDOG_PERIOD_MS;
   }
   // Check watchdog timer
   if (millis() > rover.watchdog_time) {
