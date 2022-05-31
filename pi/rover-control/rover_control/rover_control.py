@@ -90,24 +90,45 @@ class RoverControl(object):
             logging.error(f'Command parsing error: {e}')
             raise e
 
+    # def send_command(self, cmd):
+    #     # Command format:
+    #     # left: int8 except -128; right: int8 except -128; stop byte: -128
+    #     left_int = round(cmd[0] / 100.0 * 127.0)
+    #     right_int = round(cmd[1] / 100.0 * 127.0)
+    #     if left_int == -128:
+    #         left_int = -127
+    #     if right_int == -128:
+    #         right_int = -127
+    #     logging.debug(f'Command: {cmd}')
+    #     logging.debug(f'Left int: {left_int}, right int: {right_int}')
+    #     left_b = left_int.to_bytes(1, byteorder='big', signed=True)
+    #     right_b = right_int.to_bytes(1, byteorder='big', signed=True)
+    #     stop_b = (-128).to_bytes(1, byteorder='big', signed=True)
+    #     cmd_b = left_b + right_b + stop_b
+    #     logging.debug(f'Command bytes: {cmd_b}')
+    #     # Send command
+    #     self.tty_out.write(cmd_b)
+
     def send_command(self, cmd):
         # Command format:
-        # left: int8 except -128; right: int8 except -128; stop byte: -128
-        left_int = round(cmd[0] / 100.0 * 127.0)
-        right_int = round(cmd[1] / 100.0 * 127.0)
-        if left_int == -128:
-            left_int = -127
-        if right_int == -128:
-            right_int = -127
+        # 0b Ls L4 L2 L1 Rs R4 R2 R1
+        # xs: sign (0 positive, 1 negative)
+        # x4, 2, 1: value
+        left_int, right_int = round(cmd[0] / 100.0 * 7.0), round(cmd[1] / 100.0 * 7.0)
+        left_sign, right_sign = cmd[0] < 0, cmd[1] < 0
+        left_val, right_val = abs(left_int), abs(right_int)
+        command_byte = 0x00
+        if left_sign:
+            command_byte |= 0b10000000
+        if right_sign:
+            command_byte |= 0b00001000
+        command_byte |= (left_val & 0b0111) << 4
+        command_byte |= (right_val & 0b0111)
         logging.debug(f'Command: {cmd}')
         logging.debug(f'Left int: {left_int}, right int: {right_int}')
-        left_b = left_int.to_bytes(1, byteorder='big', signed=True)
-        right_b = right_int.to_bytes(1, byteorder='big', signed=True)
-        stop_b = (-128).to_bytes(1, byteorder='big', signed=True)
-        cmd_b = left_b + right_b + stop_b
-        logging.debug(f'Command bytes: {cmd_b}')
+        logging.debug(f'Command byte: {command_byte:08b}')
         # Send command
-        self.tty_out.write(cmd_b)
+        self.tty_out.write(command_byte.to_bytes(1, 'big', signed=False))
 
     def read_response(self):
         try:
