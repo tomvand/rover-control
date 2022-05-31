@@ -42,7 +42,8 @@ class RoverControl(object):
         # Set up outgoing serial device
         self.tty_out = serial.Serial(
             port=tty_out,
-            baudrate=baud_out
+            baudrate=baud_out,
+            timeout=0.10
         )
 
     def read_command(self):
@@ -95,6 +96,18 @@ class RoverControl(object):
         logging.debug(f'Command bytes: {cmd_b}')
         # Send command
         self.tty_out.write(cmd_b)
+
+    def read_response(self):
+        try:
+            inline = self.tty_out.readline()  # type: bytes
+            inline = inline.decode()
+            inline = inline.strip('\x00')
+            inline = inline.strip()
+            if len(inline) != 0:
+                logging.info(f"Arduino response: {inline}")
+        except Exception as e:
+            logging.error("Error reading Arduino response!")
+            raise e
 
     def loop(self):
         try:
