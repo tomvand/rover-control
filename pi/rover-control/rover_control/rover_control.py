@@ -77,6 +77,7 @@ class RoverControl(object):
                 inline = inline.decode()
                 inline = inline.strip('\x00')
                 if '\n' in inline:
+                    inline = inline.strip()
                     latest = inline
                 else:
                     break
