@@ -39,7 +39,7 @@ class RoverControl(object):
                 self.tty_in = serial.Serial(
                     port=tty_in,
                     baudrate=baud_in,
-                    timeout=0.10
+                    timeout=0.001
                 )
                 break
             except Exception as e:
@@ -51,7 +51,7 @@ class RoverControl(object):
                 self.tty_out = serial.Serial(
                     port=tty_out,
                     baudrate=baud_out,
-                    timeout=0.10
+                    timeout=0.001
                 )
                 break
             except Exception as e:
