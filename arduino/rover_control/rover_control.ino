@@ -6,15 +6,12 @@
 
 #define WATCHDOG_PERIOD_MS 500
 
-
-union xint8_t {
-  uint8_t u;
-  int8_t  s;
-};
+#define BUF_SIZE 10
 
 
 static struct rover_t {
-  union xint8_t cmd[10];  // Extra space for invalid characters
+  uint8_t cmd_u[BUF_SIZE];
+  int8_t cmd[BUF_SIZE];
   unsigned long watchdog_time;
 } rover;
 
@@ -30,29 +27,32 @@ static void apply_command(int8_t left, int8_t right) {
 void setup() {
   rover.watchdog_time = millis() + WATCHDOG_PERIOD_MS;
   Serial.begin(9600);
+  Serial.println("Arduino code started...");
 }
 
 void loop() {
   // Check serial data available
   if (Serial.available() >= 3) {
-    int n = Serial.readBytesUntil(-128, (uint8_t*)rover.cmd, sizeof(rover.cmd));
+    int n = Serial.readBytesUntil('\x80', rover.cmd_u, sizeof(rover.cmd_u));
     if (n == 2) {
       // Valid command
+      memcpy(rover.cmd, rover.cmd_u, sizeof(rover.cmd));
       Serial.print("Left command: ");
-      Serial.print(rover.cmd[0].s);
+      Serial.print(rover.cmd[0]);
       Serial.print(", right command: ");
-      Serial.println(rover.cmd[1].s);
-      apply_command(rover.cmd[0].s, rover.cmd[1].s);
+      Serial.println(rover.cmd[1]);
+      apply_command(rover.cmd[0], rover.cmd[1]);
       rover.watchdog_time = millis() + WATCHDOG_PERIOD_MS; 
     } else {
       // Invalid command length
       Serial.print("Invalid command length: ");
       Serial.println(n);
-    }
-  } else {
-    if (millis() > rover.watchdog_time) {
-      apply_command(0, 0);
-      Serial.println("Watchdog time exceeded!");
+      Serial.println((char*)rover.cmd_u);
     }
   }
+  if (millis() > rover.watchdog_time) {
+    apply_command(0, 0);
+    Serial.println("Watchdog time exceeded!");
+  }
+  Serial.println("Arduino code running...");
 }

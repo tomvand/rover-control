@@ -106,7 +106,7 @@ class RoverControl(object):
             if len(inline) != 0:
                 logging.info(f"Arduino response: {inline}")
         except Exception as e:
-            logging.error("Error reading Arduino response!")
+            logging.error(f"Error reading Arduino response! {e}")
             raise e
 
     def loop(self):
