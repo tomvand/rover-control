@@ -113,6 +113,7 @@ class RoverControl(object):
         try:
             cmd = self.read_command()
             self.send_command(cmd)
+            self.read_response()
         except Exception as e:
             logging.error(f'Error in main loop: {e}')
 
