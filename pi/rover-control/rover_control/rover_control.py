@@ -79,7 +79,7 @@ class RoverControl(object):
                 if '\n' in inline:
                     inline = inline.strip()
                     latest = inline
-                else:
+                elif latest is not None:
                     break
             inline = latest
             assert type(inline) == str, f'inline type is not str'
