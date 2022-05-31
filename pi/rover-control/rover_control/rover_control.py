@@ -71,10 +71,16 @@ class RoverControl(object):
             self.read_notified = False
         # Read and parse
         try:
-            inline = self.tty_in.readline()  # type: bytes
-            inline = inline.decode()
-            inline = inline.strip('\x00')
-            inline = inline.strip()
+            latest = None
+            while True:  # Slightly hacky, drop all lines except latest
+                inline = self.tty_in.readline()  # type: bytes
+                inline = inline.decode()
+                inline = inline.strip('\x00')
+                if '\n' in inline:
+                    latest = inline
+                else:
+                    break
+            inline = latest
             assert type(inline) == str, f'inline type is not str'
             assert len(inline) == 9, f'command string is not 9 characters: "{inline}" ({len(inline)})'
         except Exception as e:
