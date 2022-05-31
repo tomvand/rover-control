@@ -143,4 +143,4 @@ if __name__ == '__main__':
     c = RoverControl(**vars(args))
     while True:
         c.loop()
-        time.sleep(0.01)
+        time.sleep(0.1)
