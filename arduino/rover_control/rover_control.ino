@@ -11,6 +11,7 @@
 
 static struct rover_t {
   byte cmd[BUF_SIZE];
+  bool cmd_ready;
   unsigned long watchdog_time;
   bool led_on;
 } rover;
@@ -41,6 +42,7 @@ void setup() {
   analogWrite(M2_PWM, 0);
   
   pinMode(LED_BUILTIN, OUTPUT);
+  rover.cmd_ready = false;
   rover.watchdog_time = 0;
   rover.led_on = false;
   Serial.begin(9600);
@@ -62,12 +64,15 @@ void loop() {
     int left = (left_sign ? -1 : 1) * (int)left_val;
     int right = (right_sign ? -1 : 1) * (int)right_val;
     apply_command(left, right);
+
+    if (left == 0 && right == 0) rover.cmd_ready = true;
     rover.watchdog_time = millis() + WATCHDOG_PERIOD_MS;
     rover.led_on = ~rover.led_on;
   }
   // Check watchdog timer
   if (millis() > rover.watchdog_time) {
     apply_command(0, 0);
+    rover.cmd_ready = false;
     Serial.println("Watchdog time exceeded!");
   }
   digitalWrite(LED_BUILTIN, (millis() % 2000) > 1000 ? HIGH : LOW);
