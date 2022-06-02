@@ -102,11 +102,7 @@ class RoverControl(object):
         try:
             latest = None
             while True:  # Slightly hacky, drop all lines except latest
-                try:
-                    inline = self.tty_in.readline()  # type: bytes
-                except Exception as e:
-                    self.read_errors += 1
-                    raise e
+                inline = self.tty_in.readline()  # type: bytes
                 inline = inline.decode()
                 inline = inline.strip('\x00')
                 if '\n' in inline:
@@ -119,6 +115,7 @@ class RoverControl(object):
             assert len(inline) == 9, f'command string is not 9 characters: "{inline}" ({len(inline)})'
         except Exception as e:
             logging.error(f'Serial readline error: {e}')
+            self.read_errors += 1
             raise e
 
         if inline == "+000,+000":
