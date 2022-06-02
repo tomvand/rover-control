@@ -30,28 +30,41 @@ class RoverControl(object):
                  **kwargs):
         super().__init__()
 
+        self.read_errors = 0
         self.write_errors = 0
 
         # Set up watchdog time
         self.last_read = None
         self.read_notified = False
         # Set up incoming serial device
-        while True:
-            try:
-                self.tty_in = serial.Serial(
-                    port=tty_in,
-                    baudrate=baud_in,
-                    timeout=0.001
-                )
-                break
-            except Exception as e:
-                logging.error(f'Unable to open {tty_in}: {e}, retrying...')
-                time.sleep(2)
+        self.tty_in_name = tty_in
+        self.tty_in_baud = baud_in
+        self.tty_in = None
+        self.init_tty_in()
         # Set up outgoing serial device
         self.tty_out_name = tty_out
         self.tty_out_baud = baud_out
         self.tty_out = None
         self.init_tty_out()
+
+    def init_tty_in(self):
+        if self.tty_in is not None:
+            try:
+                self.tty_in.close()
+            except:
+                pass
+        while True:
+            try:
+                self.tty_in = serial.Serial(
+                    port=self.tty_in_name,
+                    baudrate=self.tty_in_baud,
+                    timeout=0.001
+                )
+                self.read_errors = 0
+                break
+            except Exception as e:
+                logging.error(f'Unable to open {self.tty_in_name}: {e}, retrying...')
+                time.sleep(2)
 
     def init_tty_out(self):
         if self.tty_out is not None:
@@ -87,7 +100,11 @@ class RoverControl(object):
         try:
             latest = None
             while True:  # Slightly hacky, drop all lines except latest
-                inline = self.tty_in.readline()  # type: bytes
+                try:
+                    inline = self.tty_in.readline()  # type: bytes
+                except Exception as e:
+                    self.read_errors += 1
+                    raise e
                 inline = inline.decode()
                 inline = inline.strip('\x00')
                 if '\n' in inline:
@@ -154,6 +171,9 @@ class RoverControl(object):
             if self.write_errors > 10:
                 logging.error(f'Too many write errors! Re-opening tty_out...')
                 self.init_tty_out()
+            if self.read_errors > 10:
+                logging.error(f'Too many read errors! Re-opening tty_in...')
+                self.init_tty_in()
             cmd = self.read_command()
             self.send_command(cmd)
             self.read_response()
