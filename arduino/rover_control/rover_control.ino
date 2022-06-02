@@ -6,16 +6,19 @@
 
 #define WATCHDOG_PERIOD_MS 500
 
-#define BUF_SIZE 1024
+#define BUF_SIZE 512
 
 
 static struct rover_t {
   byte cmd[BUF_SIZE];
   unsigned long watchdog_time;
+  bool led_on;
 } rover;
 
 
 static void apply_command(int left, int right) {
+  left *= 32;
+  right *= 32;
   digitalWrite(M1_DIR, left < 0);
   digitalWrite(M2_DIR, right >= 0);
   analogWrite(M1_PWM, abs(left));
@@ -28,7 +31,18 @@ static void apply_command(int left, int right) {
 
 
 void setup() {
+  pinMode(M1_DIR, OUTPUT);
+  pinMode(M2_DIR, OUTPUT);
+  pinMode(M1_PWM, OUTPUT);
+  pinMode(M2_PWM, OUTPUT);
+  digitalWrite(M1_DIR, 0);
+  digitalWrite(M2_DIR, 0);
+  analogWrite(M1_PWM, 0);
+  analogWrite(M2_PWM, 0);
+  
+  pinMode(LED_BUILTIN, OUTPUT);
   rover.watchdog_time = 0;
+  rover.led_on = false;
   Serial.begin(9600);
   Serial.println("Arduino code started...");
 }
@@ -49,11 +63,12 @@ void loop() {
     int right = (right_sign ? -1 : 1) * (int)right_val;
     apply_command(left, right);
     rover.watchdog_time = millis() + WATCHDOG_PERIOD_MS;
+    rover.led_on = ~rover.led_on;
   }
   // Check watchdog timer
   if (millis() > rover.watchdog_time) {
     apply_command(0, 0);
     Serial.println("Watchdog time exceeded!");
   }
-  Serial.flush();
+  digitalWrite(LED_BUILTIN, (millis() % 2000) > 1000 ? HIGH : LOW);
 }
