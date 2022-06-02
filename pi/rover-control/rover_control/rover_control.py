@@ -66,6 +66,7 @@ class RoverControl(object):
                     baudrate=self.tty_out_baud,
                     timeout=0.001
                 )
+                self.write_errors = 0
                 break
             except Exception as e:
                 logging.error(f'Unable to open {self.tty_out_name}: {e}, retrying...')
