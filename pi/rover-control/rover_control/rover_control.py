@@ -30,6 +30,8 @@ class RoverControl(object):
                  **kwargs):
         super().__init__()
 
+        self.write_errors = 0
+
         # Set up watchdog time
         self.last_read = None
         self.read_notified = False
@@ -46,16 +48,27 @@ class RoverControl(object):
                 logging.error(f'Unable to open {tty_in}: {e}, retrying...')
                 time.sleep(2)
         # Set up outgoing serial device
+        self.tty_out_name = tty_out
+        self.tty_out_baud = baud_out
+        self.tty_out = None
+        self.init_tty_out()
+
+    def init_tty_out(self):
+        if self.tty_out is not None:
+            try:
+                self.tty_out.close()
+            except:
+                pass
         while True:
             try:
                 self.tty_out = serial.Serial(
-                    port=tty_out,
-                    baudrate=baud_out,
+                    port=self.tty_out_name,
+                    baudrate=self.tty_out_baud,
                     timeout=0.001
                 )
                 break
             except Exception as e:
-                logging.error(f'Unable to open {tty_out}: {e}, retrying...')
+                logging.error(f'Unable to open {self.tty_out_name}: {e}, retrying...')
                 time.sleep(2)
 
     def read_command(self):
@@ -97,25 +110,6 @@ class RoverControl(object):
             logging.error(f'Command parsing error: {e}')
             raise e
 
-    # def send_command(self, cmd):
-    #     # Command format:
-    #     # left: int8 except -128; right: int8 except -128; stop byte: -128
-    #     left_int = round(cmd[0] / 100.0 * 127.0)
-    #     right_int = round(cmd[1] / 100.0 * 127.0)
-    #     if left_int == -128:
-    #         left_int = -127
-    #     if right_int == -128:
-    #         right_int = -127
-    #     logging.debug(f'Command: {cmd}')
-    #     logging.debug(f'Left int: {left_int}, right int: {right_int}')
-    #     left_b = left_int.to_bytes(1, byteorder='big', signed=True)
-    #     right_b = right_int.to_bytes(1, byteorder='big', signed=True)
-    #     stop_b = (-128).to_bytes(1, byteorder='big', signed=True)
-    #     cmd_b = left_b + right_b + stop_b
-    #     logging.debug(f'Command bytes: {cmd_b}')
-    #     # Send command
-    #     self.tty_out.write(cmd_b)
-
     def send_command(self, cmd):
         # Command format:
         # 0b Ls L4 L2 L1 Rs R4 R2 R1
@@ -135,7 +129,12 @@ class RoverControl(object):
         logging.debug(f'Left int: {left_int}, right int: {right_int}')
         logging.debug(f'Command byte: {command_byte:08b}')
         # Send command
-        self.tty_out.write(command_byte.to_bytes(1, 'big', signed=False))
+        try:
+            self.tty_out.write(command_byte.to_bytes(1, 'big', signed=False))
+        except Exception as e:
+            logging.error(f'Error sending command: {e}')
+            self.write_errors += 1
+            raise e
 
     def read_response(self):
         try:
@@ -151,11 +150,14 @@ class RoverControl(object):
 
     def loop(self):
         try:
+            if self.write_errors > 10:
+                logging.error(f'Too many write errors! Re-opening tty_out...')
+                self.init_tty_out()
             cmd = self.read_command()
             self.send_command(cmd)
             self.read_response()
         except Exception as e:
-            logging.error(f'Error in main loop: {e}')
+            logging.error(f'Error in main loop: {repr(e)}')
 
 
 if __name__ == '__main__':
