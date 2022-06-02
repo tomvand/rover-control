@@ -40,6 +40,7 @@ class RoverControl(object):
         self.tty_in_name = tty_in
         self.tty_in_baud = baud_in
         self.tty_in = None
+        self.tty_in_ready = False
         self.init_tty_in()
         # Set up outgoing serial device
         self.tty_out_name = tty_out
@@ -80,6 +81,7 @@ class RoverControl(object):
                     timeout=0.001
                 )
                 self.write_errors = 0
+                self.tty_in_ready = False
                 break
             except Exception as e:
                 logging.error(f'Unable to open {self.tty_out_name}: {e}, retrying...')
@@ -119,14 +121,21 @@ class RoverControl(object):
             logging.error(f'Serial readline error: {e}')
             raise e
 
+        if inline == "+000,+000":
+            self.tty_in_ready = True
+
         try:
             r = {'left': int(inline[:4]), 'right': int(inline[5:])}
             cmd = (r['left'], r['right'])
             logging.debug(f'Received command: {cmd}')
-            return cmd
         except Exception as e:
             logging.error(f'Command parsing error: {e}')
             raise e
+
+        if self.tty_in_ready:
+            return cmd
+        else:
+            return 0, 0
 
     def send_command(self, cmd):
         # Command format:
