@@ -20,5 +20,5 @@ venv:
 	touch venv
 
 pprzlink/pprzlink: pprzlink/messages.xml
-	$(MAKE) -C pprzlink/pprzlink all pymessages MESSAGES_XML=../messages.xml
+	$(MAKE) -C pprzlink/pprzlink MESSAGES_XML=../messages.xml all pymessages
 	touch pprzlink/pprzlink

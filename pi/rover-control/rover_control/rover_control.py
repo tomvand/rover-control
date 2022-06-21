@@ -5,12 +5,11 @@ rover_control.py
 2. Log telemetry data
 """
 
-import sys
-sys.path.insert(1, 'pprzlink/pprzlink/lib/v2.0/python')
-
 import serial
 import time
 from parse import parse
+
+from rover_control.drone_pprzlink import DronePprzlink
 
 
 
@@ -18,11 +17,12 @@ import logging
 logging.basicConfig(
     filename='rover_control.log',
     level=logging.DEBUG,
-    format='%(asctime)s %(levelname)s: %(message)s'
+    format='%(asctime)s %(name)s %(levelname)s: %(message)s'
 )
 console = logging.StreamHandler()
 console.setLevel(logging.DEBUG)
 logging.getLogger().addHandler(console)
+logging = logging.getLogger(__name__)
 
 
 class RoverControl(object):
