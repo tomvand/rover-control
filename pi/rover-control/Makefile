@@ -19,6 +19,6 @@ venv:
 	source venv/bin/activate && pip install -r requirements.txt
 	touch venv
 
-pprzlink/pprzlink: pprzlink/messages.xml
-	$(MAKE) -C pprzlink/pprzlink MESSAGES_XML=../messages.xml all pymessages
-	touch pprzlink/pprzlink
+pprzlink: pprzlink/messages.xml
+	$(MAKE) -C $@/pprzlink MESSAGES_XML=../messages.xml all pymessages
+	touch $@
