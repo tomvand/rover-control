@@ -16,18 +16,14 @@ class DronePprzlink(object):
         self.tty_baud = baud
         self.tty = None
 
-        self._serial_open()
+        self.serial_open()
 
         self.transport = PprzTransport('intermcu')
         messages_xml_map.parse_messages(messages_xml)
 
         self.callback = lambda sender_id, msg: 0
 
-    def loop(self):
-        # Open serial port if necessary
-        if self.tty is None:
-            self._serial_open()
-
+    def read(self):
         while True:
             # Read character
             while True:
@@ -35,8 +31,8 @@ class DronePprzlink(object):
                     c = self.tty.read(1)
                     break
                 except Exception as e:
-                    logging.error(f'Error reading from {self.tty}: {e}, reopening...')
-                self._serial_open()
+                    logging.error(f'Error reading from {self.tty}: {e}')
+                    raise e
             if len(c) < 1:
                 break  # no more characters
 
@@ -48,10 +44,11 @@ class DronePprzlink(object):
                 except ValueError as e:
                     logging.warning("Ignoring unknown message, %s" % e)
                 else:
-                    logging.debug("New incoming message '%s' from %i (%i) to %i" % (msg.name, sender_id, component_id, receiver_id))
-                    self.callback(sender_id, msg)
+                    logging.debug(msg)
+                    return msg
+        return None
 
-    def _serial_open(self):
+    def serial_open(self):
         # Try closing the tty first
         try:
             self.tty.close()
@@ -74,4 +71,6 @@ class DronePprzlink(object):
 if __name__ == '__main__':
     drone = DronePprzlink('/dev/ttyACM0')
     while True:
-        drone.loop()
+        msg = drone.read()
+        if msg is not None:
+            print(msg)
