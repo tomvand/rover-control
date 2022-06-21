@@ -7,11 +7,11 @@ all: venv pprzlink/pprzlink
 .PHONY: all
 
 run: all
-	(source venv/bin/activate || true) && python -m rover_control.rover_control $(TTY_IN) $(TTY_OUT)
+	source venv/bin/activate && python -m rover_control.rover_control $(TTY_IN) $(TTY_OUT)
 .PHONY: run
 
 freeze:
-	(source venv/bin/activate || true) && pip freeze --local | grep -v "pkg-resources" > requirements.txt
+	source venv/bin/activate && pip freeze --local | grep -v "pkg-resources" > requirements.txt
 .PHONY: freeze
 
 venv:
