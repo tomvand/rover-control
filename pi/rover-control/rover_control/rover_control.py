@@ -46,7 +46,7 @@ class RoverControl(object):
         try:
             msg = self.drone.read()
         except Exception as e:
-            logging.error('Exception while reading from drone {e}, reopening...')
+            logging.error(f'Exception while reading from drone {e}, reopening...')
             self.drone.serial_open()
             return
 
@@ -64,7 +64,7 @@ class RoverControl(object):
                 self.rover.send_command((0, 0))
             # self.rover.read_response()
         except Exception as e:
-            logging.error('Exception while writing to rover {e}, reopening...')
+            logging.error(f'Exception while writing to rover {e}, reopening...')
             self.rover.serial_open()
             return
 
