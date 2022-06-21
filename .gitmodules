@@ -1,0 +1,3 @@
+[submodule "pi/rover-control/pprzlink/pprzlink"]
+	path = pi/rover-control/pprzlink/pprzlink
+	url = https://github.com/paparazzi/pprzlink.git

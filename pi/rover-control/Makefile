@@ -3,7 +3,7 @@ SHELL := /bin/bash
 TTY_IN ?= /dev/ttyPPRZ0
 TTY_OUT ?= /dev/ttyArduino0
 
-all: venv
+all: venv pprzlink/pprzlink
 .PHONY: all
 
 run: all
@@ -18,3 +18,7 @@ venv:
 	virtualenv -p python3 venv
 	source venv/bin/activate && pip install -r requirements.txt
 	touch venv
+
+pprzlink/pprzlink: pprzlink/messages.xml
+	$(MAKE) -C pprzlink/pprzlink all pymessages MESSAGES_XML=../messages.xml
+	touch pprzlink/pprzlink

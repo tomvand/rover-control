@@ -5,9 +5,14 @@ rover_control.py
 2. Log telemetry data
 """
 
+import sys
+sys.path.insert(1, 'pprzlink/pprzlink/lib/v2.0/python')
+
 import serial
 import time
 from parse import parse
+
+
 
 import logging
 logging.basicConfig(
