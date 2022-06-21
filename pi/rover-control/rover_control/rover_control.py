@@ -38,30 +38,29 @@ class RoverControl(object):
         self.drone = DronePprzlink(tty_in)
         self.rover = RoverSerial(tty_out, baud_out)
 
+        self.cmd = (0, 0)
         self.timeout = 0
 
     def loop(self):
-        cmd = None
-
         try:
             msg = self.drone.read()
         except Exception as e:
             logging.error(f'Exception while reading from drone {e}, reopening...')
             self.drone.serial_open()
             return
-
+        cmd = None
         if msg is not None:
             if msg.name == 'ROVER':
                 cmd = (msg.left, msg.right)
 
         if cmd is not None:
+            self.cmd = cmd
             self.timeout = time.time() + 0.5
+        if time.time() > self.timeout:
+            self.cmd = (0, 0)
 
         try:
-            if time.time() < self.timeout:
-                self.rover.send_command(cmd)
-            else:
-                self.rover.send_command((0, 0))
+            self.rover.send_command(cmd)
             # self.rover.read_response()
         except Exception as e:
             logging.error(f'Exception while writing to rover {e}, reopening...')
