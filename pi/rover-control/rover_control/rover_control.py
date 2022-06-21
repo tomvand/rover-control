@@ -62,7 +62,7 @@ class RoverControl(object):
                 self.rover.send_command(cmd)
             else:
                 self.rover.send_command((0, 0))
-            self.rover.read_response()
+            # self.rover.read_response()
         except Exception as e:
             logging.error('Exception while writing to rover, reopening...')
             self.rover.serial_open()
