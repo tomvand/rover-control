@@ -39,7 +39,7 @@ class RoverControl(object):
 
         self.drone = DronePprzlink(tty_in)
         self.rover = RoverSerial(tty_out, baud_out)
-        self.log = LogFile(f'logs/{datetime.now().strftime("%Y%m%d-%H%M")}.txt')
+        self.log = LogFile(f'logs/{datetime.datetime.now().strftime("%Y%m%d-%H%M")}.txt')
 
         self.cmd = (0, 0)
         self.timeout = 0
