@@ -11,6 +11,7 @@ from parse import parse
 
 from rover_control.drone_pprzlink import DronePprzlink
 from rover_control.rover_serial import RoverSerial
+from rover_control.logfile import LogFile
 
 
 import logging
@@ -37,6 +38,7 @@ class RoverControl(object):
 
         self.drone = DronePprzlink(tty_in)
         self.rover = RoverSerial(tty_out, baud_out)
+        self.log = LogFile('rover_control_tel.json')
 
         self.cmd = (0, 0)
         self.timeout = 0
@@ -50,6 +52,7 @@ class RoverControl(object):
             return
         cmd = None
         if msg is not None:
+            self.log.write(msg.to_json() + '\n')
             if msg.name == 'ROVER':
                 cmd = (msg.left, msg.right)
 
