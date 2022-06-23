@@ -42,7 +42,8 @@ if __name__ == '__main__':
     plt.figure()
     plt.plot(
         log['VISUALHOMING_STATE']['ins_e'],
-        log['VISUALHOMING_STATE']['ins_n']
+        log['VISUALHOMING_STATE']['ins_n'],
+        '-o'
     )
     plt.axis('equal')
     plt.grid(True)
