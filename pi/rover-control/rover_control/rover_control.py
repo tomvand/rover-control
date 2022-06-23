@@ -7,6 +7,7 @@ rover_control.py
 
 import serial
 import time
+import datetime
 from parse import parse
 
 from rover_control.drone_pprzlink import DronePprzlink
@@ -38,7 +39,7 @@ class RoverControl(object):
 
         self.drone = DronePprzlink(tty_in)
         self.rover = RoverSerial(tty_out, baud_out)
-        self.log = LogFile('rover_control_tel.txt')
+        self.log = LogFile(f'logs/{datetime.now().strftime("%Y%m%d-%H%M")}.txt')
 
         self.cmd = (0, 0)
         self.timeout = 0

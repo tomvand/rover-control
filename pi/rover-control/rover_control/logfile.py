@@ -1,8 +1,10 @@
+import os
 import time
 
 
 class LogFile(object):
     def __init__(self, filename):
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         self.f = open(filename, 'at')
 
     def __del__(self):
