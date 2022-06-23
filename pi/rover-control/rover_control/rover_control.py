@@ -38,7 +38,7 @@ class RoverControl(object):
 
         self.drone = DronePprzlink(tty_in)
         self.rover = RoverSerial(tty_out, baud_out)
-        self.log = LogFile('rover_control_tel.json')
+        self.log = LogFile('rover_control_tel.txt')
 
         self.cmd = (0, 0)
         self.timeout = 0
