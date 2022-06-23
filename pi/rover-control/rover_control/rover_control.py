@@ -57,11 +57,12 @@ class RoverControl(object):
             self.cmd = cmd
             self.timeout = time.time() + 0.5
         if time.time() > self.timeout:
+            logging.error(f'Timeout exceeded! Commanding stop.')
             self.cmd = (0, 0)
 
         try:
             self.rover.send_command(self.cmd)
-            # self.rover.read_response()
+            self.rover.read_response()
         except Exception as e:
             logging.error(f'Exception while writing to rover {e}, reopening...')
             self.rover.serial_open()

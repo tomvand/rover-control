@@ -41,7 +41,7 @@ class RoverSerial(object):
     def read_response(self):
         try:
             inline = self.tty.readline()  # type: bytes
-            inline = inline.decode()
+            inline = inline.decode('ascii')
             inline = inline.strip('\x00')
             inline = inline.strip()
             if len(inline) != 0:
