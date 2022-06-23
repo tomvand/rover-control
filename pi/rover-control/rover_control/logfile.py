@@ -3,7 +3,7 @@ import time
 
 class LogFile(object):
     def __init__(self, filename):
-        self.f = open(filename, 'wt')
+        self.f = open(filename, 'at')
 
     def __del__(self):
         self.f.close()
