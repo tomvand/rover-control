@@ -42,7 +42,7 @@ class RoverControl(object):
         self.rover = RoverSerial(tty_out, baud_out)
 
         log_idx = len(os.listdir('logs'))
-        self.log = LogFile(f'logs/{log_idx:4d}.txt')
+        self.log = LogFile(f'logs/{log_idx:04d}.txt')
 
         self.cmd = (0, 0)
         self.timeout = 0
