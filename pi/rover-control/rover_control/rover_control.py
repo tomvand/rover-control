@@ -14,6 +14,7 @@ from parse import parse
 from rover_control.drone_pprzlink import DronePprzlink
 from rover_control.rover_serial import RoverSerial
 from rover_control.logfile import LogFile
+from rover_control.pi_led import Led
 
 
 import logging
@@ -40,6 +41,7 @@ class RoverControl(object):
 
         self.drone = DronePprzlink(tty_in)
         self.rover = RoverSerial(tty_out, baud_out)
+        self.led = Led()
 
         log_idx = len(os.listdir('logs'))
         self.log = LogFile(f'logs/{log_idx:04d}.txt')
@@ -63,6 +65,7 @@ class RoverControl(object):
         if cmd is not None:
             self.cmd = cmd
             self.timeout = time.time() + 0.5
+            self.led.toggle()
         if time.time() > self.timeout:
             logging.error(f'Timeout exceeded! Commanding stop.')
             self.cmd = (0, 0)
