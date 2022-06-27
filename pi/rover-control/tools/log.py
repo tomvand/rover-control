@@ -68,8 +68,8 @@ else:
         plt.plot(log['VISUALHOMING_STATE']['_time'], log['VISUALHOMING_STATE']['ins_n'])
         plt.ylabel('N [m]')
         plt.subplot(3, 1, 3)
-        plt.plot(log['VISUALHOMING_STATE']['_time'], np.unwrap(log['VISUALHOMING_STATE']['psi']))
-        plt.ylabel('Psi [rad]')
+        plt.plot(log['VISUALHOMING_STATE']['_time'], np.rad2deg(np.unwrap(log['VISUALHOMING_STATE']['psi'])))
+        plt.ylabel('Psi [deg]')
 
     def plot_vectors(log):
         for i in range(len(log['VISUALHOMING']['_time'])):
@@ -85,6 +85,10 @@ else:
                       head_width=0.05)
         plt.axis('equal')
         plt.grid(True)
+
+    def plot_vectors_yaw(log):
+        plt.plot(log['VISUALHOMING']['_time'], np.rad2deg(log['VISUALHOMING']['delta_yaw']))
+        plt.ylabel('Delta_psi [deg]')
 
 
 if __name__ == '__main__':
@@ -105,5 +109,8 @@ if __name__ == '__main__':
 
     plt.figure()
     plot_ins_time(log)
+
+    plt.figure()
+    plot_vectors_yaw(log)
 
     plt.show()
