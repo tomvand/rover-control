@@ -1,33 +1,30 @@
+import os
+
 import logging
 logging = logging.getLogger(__name__)
 
 
 class Led(object):
     def __init__(self):
-        self.led = None
+        self.led = False
         self.is_on = False
         try:
-            # Disable mmc trigger
+            # Detect led pseudo-file present and writable
             with open('/sys/class/leds/led0/trigger', 'wt') as f:
-                f.write('none')
-            # Open brightness control
-            self.led = open('/sys/class/leds/led0/brightness', 'wt')
+                pass
+            os.system('echo none > /sys/class/leds/led0/trigger')
+            self.led = True
         except Exception as e:
             logging.info(f'Could not open led file: {e}. Ignoring.')
 
     def __del__(self):
         try:
-            self.led.close()
-        except:
-            pass
-
-        try:
-            with open('/sys/class/leds/led0/trigger', 'wt') as f:
-                f.write('mmc0')
+            if self.led:
+                os.system('echo mmc0 > /sys/class/leds/led0/trigger')
         except:
             pass
 
     def toggle(self):
-        if self.led is not None:
+        if self.led:
             self.is_on = not self.is_on
-            self.led.write('1' if self.is_on else '0')
+            os.system(f'echo {"1" if self.is_on else "0"} > /sys/class/leds/led0/brightness')
