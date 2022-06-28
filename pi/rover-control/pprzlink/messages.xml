@@ -3210,6 +3210,10 @@
       <field name="left" type="int8">-100..100</field>
       <field name="right" type="int8">-100..100</field>
     </message>
+    
+    <message name="IMCU_LOG" id="14">
+      <field name="run" type="uint8">0 or nonzero</field>
+    </message>
 
     <message name="IMCU_REMOTE_MAG" id="58">
       <field name="mag_x" type="int16">RAW Magnetometer Data</field>

@@ -43,11 +43,19 @@ class RoverControl(object):
         self.rover = RoverSerial(tty_out, baud_out)
         self.led = Led()
 
-        log_idx = len(os.listdir('logs'))
-        self.log = LogFile(f'logs/{log_idx:04d}.txt')
+        self.log = None
 
         self.cmd = (0, 0)
         self.timeout = 0
+
+    def log_open(self):
+        if self.log is None:
+            log_idx = len(os.listdir('logs'))
+            self.log = LogFile(f'logs/{log_idx:04d}.txt')
+
+    def log_close(self):
+        if self.log is not None:
+            del self.log
 
     def loop(self):
         try:
@@ -58,9 +66,16 @@ class RoverControl(object):
             return
         cmd = None
         if msg is not None:
-            self.log.write(msg.to_json() + '\n')
+            if self.log is not None:
+                self.log.write(msg.to_json() + '\n')
+
             if msg.name == 'ROVER':
                 cmd = (msg.left, msg.right)
+            elif msg.name == 'IMCU_LOG':
+                if msg.run == 0 and self.log is not None:
+                    self.log_close()
+                elif msg.run != 0 and self.log is None:
+                    self.log_open()
 
         if cmd is not None:
             self.cmd = cmd
