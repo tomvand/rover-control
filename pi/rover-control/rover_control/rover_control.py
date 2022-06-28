@@ -56,6 +56,7 @@ class RoverControl(object):
     def log_close(self):
         if self.log is not None:
             del self.log
+            self.log = None
 
     def loop(self):
         try:
