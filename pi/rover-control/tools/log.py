@@ -98,7 +98,7 @@ else:
             n = log['VISUALHOMING_STATE']['ins_n']
             t = log['VISUALHOMING_STATE']['_time']
             # Plot INS corrections
-            for i in range(len(log['VISUALHOMING_INS_CORRECTION'])):
+            for i in range(len(log['VISUALHOMING_INS_CORRECTION']['_time'])):
                 tc = log['VISUALHOMING_INS_CORRECTION']['_time'][i]
                 de = log['VISUALHOMING_INS_CORRECTION']['delta_e'][i]
                 dn = log['VISUALHOMING_INS_CORRECTION']['delta_n'][i]
@@ -110,7 +110,22 @@ else:
                           length_includes_head=True,
                           head_width=0.05)
         else:
-            pass  # TODO
+            for i in range(len(log['VISUALHOMING_INS_CORRECTION']['_time'])):
+                e_from = log['VISUALHOMING_INS_CORRECTION']['e_from'][i]
+                n_from = log['VISUALHOMING_INS_CORRECTION']['n_from'][i]
+                e_to = log['VISUALHOMING_INS_CORRECTION']['e_to'][i]
+                n_to = log['VISUALHOMING_INS_CORRECTION']['n_to'][i]
+                de = e_to - e_from
+                dn = n_to - n_from
+                plt.arrow(e_from, n_from, de, dn, color='black',
+                          width=1e-4,
+                          length_includes_head=True,
+                          head_width=0.05)
+                psi_from = log['VISUALHOMING_INS_CORRECTION']['psi_from'][i]
+                psi_to = log['VISUALHOMING_INS_CORRECTION']['psi_to'][i]
+                psi = np.linspace(psi_from, psi_to, 20)
+                R = 0.10
+                plt.plot(e_to + R * np.sin(psi), n_to + R * np.cos(psi), 'k')
 
 
 if __name__ == '__main__':
