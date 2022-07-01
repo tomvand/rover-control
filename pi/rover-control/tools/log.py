@@ -90,6 +90,24 @@ else:
         plt.plot(log['VISUALHOMING']['_time'], np.rad2deg(log['VISUALHOMING']['delta_yaw']))
         plt.ylabel('Delta_psi [deg]')
 
+    def plot_ins_correction(log):
+        # Collect EN position for plotting
+        e = log['VISUALHOMING_STATE']['ins_e']
+        n = log['VISUALHOMING_STATE']['ins_n']
+        t = log['VISUALHOMING_STATE']['_time']
+        # Plot INS corrections
+        for i in range(len(log['VISUALHOMING_INS_CORRECTION'])):
+            tc = log['VISUALHOMING_INS_CORRECTION']['_time'][i]
+            de = log['VISUALHOMING_INS_CORRECTION']['delta_e'][i]
+            dn = log['VISUALHOMING_INS_CORRECTION']['delta_n'][i]
+            dpsi = log['VISUALHOMING_INS_CORRECTION']['delta_psi'][i]
+            efrom = np.interp(tc, t, e)
+            nfrom = np.interp(tc, t, n)
+            plt.arrow(efrom, nfrom, de, dn, color='black',
+                      width=1e-4,
+                      length_includes_head=True,
+                      head_width=0.05)
+
 
 if __name__ == '__main__':
     import argparse
@@ -104,13 +122,19 @@ if __name__ == '__main__':
     print(json.dumps(log, indent=2))
 
     plt.figure()
-    plot_vectors(log)
-    plot_ins_pos(log)
+    try: plot_vectors(log)
+    except: pass
+    try: plot_ins_pos(log)
+    except: pass
+    try: plot_ins_correction(log)
+    except: pass
 
     plt.figure()
-    plot_ins_time(log)
+    try: plot_ins_time(log)
+    except: pass
 
     plt.figure()
-    plot_vectors_yaw(log)
+    try: plot_vectors_yaw(log)
+    except: pass
 
     plt.show()
