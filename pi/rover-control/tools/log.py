@@ -127,6 +127,23 @@ else:
                 R = 0.10
                 plt.plot(e_to + R * np.sin(psi), n_to + R * np.cos(psi), 'k')
 
+    def plot_map(log):
+        snapshot = {}
+        odometry = {}
+        for i in range(len(log['VISUALHOMING_MAP_TEL']['_time'])):
+            snapshot_index = log['VISUALHOMING_MAP_TEL']['snapshot_index'][i]
+            snapshot_e = log['VISUALHOMING_MAP_TEL']['snapshot_e'][i]
+            snapshot_n = log['VISUALHOMING_MAP_TEL']['snapshot_n'][i]
+            odometry_index = log['VISUALHOMING_MAP_TEL']['odometry_index'][i]
+            odometry_e = log['VISUALHOMING_MAP_TEL']['odometry_e'][i]
+            odometry_n = log['VISUALHOMING_MAP_TEL']['odometry_n'][i]
+            snapshot[snapshot_index] = {'e': snapshot_e, 'n': snapshot_n}
+            odometry[odometry_index] = {'e': odometry_e, 'n': odometry_n}
+        for index, ss in snapshot.items():
+            plt.plot(ss['e'], ss['n'], 'bo', markersize=10)
+        for index, odo in odometry.items():
+            plt.plot(odo['e'], odo['n'], 'rx', markersize=10)
+
 
 if __name__ == '__main__':
     import argparse
@@ -142,6 +159,8 @@ if __name__ == '__main__':
 
     plt.figure()
     try: plot_vectors(log)
+    except: pass
+    try: plot_map(log)
     except: pass
     try: plot_ins_pos(log)
     except: pass
