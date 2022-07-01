@@ -91,22 +91,26 @@ else:
         plt.ylabel('Delta_psi [deg]')
 
     def plot_ins_correction(log):
-        # Collect EN position for plotting
-        e = log['VISUALHOMING_STATE']['ins_e']
-        n = log['VISUALHOMING_STATE']['ins_n']
-        t = log['VISUALHOMING_STATE']['_time']
-        # Plot INS corrections
-        for i in range(len(log['VISUALHOMING_INS_CORRECTION'])):
-            tc = log['VISUALHOMING_INS_CORRECTION']['_time'][i]
-            de = log['VISUALHOMING_INS_CORRECTION']['delta_e'][i]
-            dn = log['VISUALHOMING_INS_CORRECTION']['delta_n'][i]
-            dpsi = log['VISUALHOMING_INS_CORRECTION']['delta_psi'][i]
-            efrom = np.interp(tc, t, e)
-            nfrom = np.interp(tc, t, n)
-            plt.arrow(efrom, nfrom, de, dn, color='black',
-                      width=1e-4,
-                      length_includes_head=True,
-                      head_width=0.05)
+        if 'delta_e' in log['VISUALHOMING_INS_CORRECTION']:
+            # Old version
+            # Collect EN position for plotting
+            e = log['VISUALHOMING_STATE']['ins_e']
+            n = log['VISUALHOMING_STATE']['ins_n']
+            t = log['VISUALHOMING_STATE']['_time']
+            # Plot INS corrections
+            for i in range(len(log['VISUALHOMING_INS_CORRECTION'])):
+                tc = log['VISUALHOMING_INS_CORRECTION']['_time'][i]
+                de = log['VISUALHOMING_INS_CORRECTION']['delta_e'][i]
+                dn = log['VISUALHOMING_INS_CORRECTION']['delta_n'][i]
+                dpsi = log['VISUALHOMING_INS_CORRECTION']['delta_psi'][i]
+                efrom = np.interp(tc, t, e)
+                nfrom = np.interp(tc, t, n)
+                plt.arrow(efrom, nfrom, de, dn, color='black',
+                          width=1e-4,
+                          length_includes_head=True,
+                          head_width=0.05)
+        else:
+            pass  # TODO
 
 
 if __name__ == '__main__':
