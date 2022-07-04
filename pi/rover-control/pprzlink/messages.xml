@@ -3211,6 +3211,10 @@
     <message name="IMCU_LOG" id="14">
       <field name="run" type="uint8">0 or nonzero</field>
     </message>
+    
+    <message name="VISUALHOMING_CAMERA" id="15">
+      <field name="snapshot_ak_bk" type="int8[]"/>
+    </message>
 
     <message name="IMCU_REMOTE_MAG" id="58">
       <field name="mag_x" type="int16">RAW Magnetometer Data</field>
