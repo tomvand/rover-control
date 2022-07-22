@@ -61,15 +61,46 @@ else:
         plt.grid(True)
 
     def plot_ins_time(log):
-        plt.subplot(3, 1, 1)
+        ax1 = plt.subplot(3, 1, 1)
         plt.plot(log['VISUALHOMING_STATE']['_time'], log['VISUALHOMING_STATE']['ins_e'])
         plt.ylabel('E [m]')
-        plt.subplot(3, 1, 2)
+        ax2 = plt.subplot(3, 1, 2)
         plt.plot(log['VISUALHOMING_STATE']['_time'], log['VISUALHOMING_STATE']['ins_n'])
         plt.ylabel('N [m]')
-        plt.subplot(3, 1, 3)
+        ax3 = plt.subplot(3, 1, 3)
         plt.plot(log['VISUALHOMING_STATE']['_time'], np.rad2deg(np.unwrap(log['VISUALHOMING_STATE']['psi'])))
         plt.ylabel('Psi [deg]')
+
+        # if 'VISUALHOMING_INS_CORRECTION' in log:
+        for i in range(len(log['VISUALHOMING_INS_CORRECTION']['_time'])):
+            t = log['VISUALHOMING_INS_CORRECTION']['_time'][i]
+            e_from = log['VISUALHOMING_INS_CORRECTION']['e_from'][i]
+            n_from = log['VISUALHOMING_INS_CORRECTION']['n_from'][i]
+            e_to = log['VISUALHOMING_INS_CORRECTION']['e_to'][i]
+            n_to = log['VISUALHOMING_INS_CORRECTION']['n_to'][i]
+            de = e_to - e_from
+            dn = n_to - n_from
+            psi_from = log['VISUALHOMING_INS_CORRECTION']['psi_from'][i]
+            psi_to = log['VISUALHOMING_INS_CORRECTION']['psi_to'][i]
+            dpsi = psi_to - psi_from
+            plt.sca(ax1)
+            plt.axvline(t)
+            # plt.arrow(t, e_from, 0, de, color='black',
+            #           width=1e-4,
+            #           length_includes_head=True,
+            #           head_width=0.05)
+            plt.sca(ax2)
+            plt.axvline(t)
+            # plt.arrow(t, n_from, 0, dn, color='black',
+            #           width=1e-4,
+            #           length_includes_head=True,
+            #           head_width=0.05)
+            plt.sca(ax3)
+            plt.axvline(t)
+            # plt.arrow(t, psi_from, 0, dpsi, color='black',
+            #           width=1e-4,
+            #           length_includes_head=True,
+            #           head_width=0.05)
 
     def plot_vectors(log):
         for i in range(len(log['VISUALHOMING']['_time'])):
@@ -144,19 +175,33 @@ else:
         for index, odo in odometry.items():
             plt.plot(odo['e'], odo['n'], 'rx', markersize=10)
 
+    def snapshot_to_image(ak_bk, width=360, coeff_a=0.60, coeff_b=0.826):
+        K = int(len(ak_bk) / 2)
+        aki = np.asarray(ak_bk[:K])
+        bki = np.asarray(ak_bk[K:])
+        snapshot = np.zeros((1, width))
+        bearing = np.linspace(0, 2 * np.pi, width).reshape((1, -1))
+        for k in range(K):
+            akf = aki[k] * coeff_a * coeff_b ** k
+            bkf = bki[k] * coeff_a * coeff_b ** k
+            snapshot += akf * np.cos(k * bearing) + bkf * np.sin(k * bearing)
+        return snapshot
+
     def plot_camera(log, width=360, coeff_a=0.60, coeff_b=0.826):
         images = []
         for i in range(len(log['VISUALHOMING_CAMERA']['_time'])):
-            K = int(len(log['VISUALHOMING_CAMERA']['snapshot_ak_bk'][i]) / 2)
-            aki = np.asarray(log['VISUALHOMING_CAMERA']['snapshot_ak_bk'][i][:K])
-            bki = np.asarray(log['VISUALHOMING_CAMERA']['snapshot_ak_bk'][i][K:])
+            # K = int(len(log['VISUALHOMING_CAMERA']['snapshot_ak_bk'][i]) / 2)
+            # aki = np.asarray(log['VISUALHOMING_CAMERA']['snapshot_ak_bk'][i][:K])
+            # bki = np.asarray(log['VISUALHOMING_CAMERA']['snapshot_ak_bk'][i][K:])
+            # t = log['VISUALHOMING_CAMERA']['_time'][i]
+            # snapshot = np.zeros((1, width))
+            # bearing = np.linspace(-np.pi, np.pi, width).reshape((1, -1))
+            # for k in range(K):
+            #     akf = aki[k] * coeff_a * coeff_b ** k
+            #     bkf = bki[k] * coeff_a * coeff_b ** k
+            #     snapshot += akf * np.cos(bearing) + bkf * np.sin(bearing)
+            snapshot = snapshot_to_image(log['VISUALHOMING_CAMERA']['snapshot_ak_bk'][i])
             t = log['VISUALHOMING_CAMERA']['_time'][i]
-            snapshot = np.zeros((1, width))
-            bearing = np.linspace(-np.pi, np.pi, width).reshape((1, -1))
-            for k in range(K):
-                akf = aki[k] * coeff_a * coeff_b ** k
-                bkf = bki[k] * coeff_a * coeff_b ** k
-                snapshot += akf * np.cos(bearing) + bkf * np.sin(bearing)
             images.append({
                 'image': snapshot,
                 'time': t
