@@ -99,6 +99,35 @@ def clean_optitrack(ot_in):
     return ot
 
 
+try:
+    import matplotlib.pyplot as plt
+
+    def plot_optitrack_time(ot):
+        plt.subplot(211)
+        plt.plot(ot.time, ot.pos_x, label='x')
+        plt.plot(ot.time, ot.pos_y, label='y')
+        plt.plot(ot.time, ot.pos_z, label='z')
+        plt.legend()
+        plt.xlabel('Time [s]')
+        plt.ylabel('[m]')
+        plt.subplot(212)
+        plt.plot(ot.time, np.rad2deg(ot.rot_phi), label='phi')
+        plt.plot(ot.time, np.rad2deg(ot.rot_theta), label='theta')
+        plt.plot(ot.time, np.rad2deg(ot.rot_psi), label='psi')
+        plt.legend()
+        plt.xlabel('Time [s]')
+        plt.ylabel('deg')
+
+    def plot_optitrack(ot):
+        plt.plot(ot.pos_e, ot.pos_n)
+        plt.plot(ot.pos_e[0], ot.pos_n[0], 'o')
+        plt.xlabel('East (Optitrack) [m]')
+        plt.ylabel('North (Optitrack) [m]')
+        plt.axis('equal')
+except:
+    pass
+
+
 if __name__ == '__main__':
     import argparse
     import matplotlib.pyplot as plt
@@ -110,26 +139,9 @@ if __name__ == '__main__':
         ot = parse_optitrack_csv(f)
 
     plt.figure()
-    plt.subplot(211)
-    plt.plot(ot.time, ot.pos_x, label='x')
-    plt.plot(ot.time, ot.pos_y, label='y')
-    plt.plot(ot.time, ot.pos_z, label='z')
-    plt.legend()
-    plt.xlabel('Time [s]')
-    plt.ylabel('[m]')
-    plt.subplot(212)
-    plt.plot(ot.time, np.rad2deg(ot.rot_phi), label='phi')
-    plt.plot(ot.time, np.rad2deg(ot.rot_theta), label='theta')
-    plt.plot(ot.time, np.rad2deg(ot.rot_psi), label='psi')
-    plt.legend()
-    plt.xlabel('Time [s]')
-    plt.ylabel('deg')
+    plot_optitrack_time(ot)
 
     plt.figure()
-    plt.plot(ot.pos_e, ot.pos_n)
-    plt.plot(ot.pos_e[0], ot.pos_n[0], 'o')
-    plt.xlabel('East (Optitrack) [m]')
-    plt.ylabel('North (Optitrack) [m]')
-    plt.axis('equal')
+    plot_optitrack(ot)
 
     plt.show()

@@ -71,36 +71,36 @@ else:
         plt.plot(log['VISUALHOMING_STATE']['_time'], np.rad2deg(np.unwrap(log['VISUALHOMING_STATE']['psi'])))
         plt.ylabel('Psi [deg]')
 
-        # if 'VISUALHOMING_INS_CORRECTION' in log:
-        for i in range(len(log['VISUALHOMING_INS_CORRECTION']['_time'])):
-            t = log['VISUALHOMING_INS_CORRECTION']['_time'][i]
-            e_from = log['VISUALHOMING_INS_CORRECTION']['e_from'][i]
-            n_from = log['VISUALHOMING_INS_CORRECTION']['n_from'][i]
-            e_to = log['VISUALHOMING_INS_CORRECTION']['e_to'][i]
-            n_to = log['VISUALHOMING_INS_CORRECTION']['n_to'][i]
-            de = e_to - e_from
-            dn = n_to - n_from
-            psi_from = log['VISUALHOMING_INS_CORRECTION']['psi_from'][i]
-            psi_to = log['VISUALHOMING_INS_CORRECTION']['psi_to'][i]
-            dpsi = psi_to - psi_from
-            plt.sca(ax1)
-            plt.axvline(t)
-            # plt.arrow(t, e_from, 0, de, color='black',
-            #           width=1e-4,
-            #           length_includes_head=True,
-            #           head_width=0.05)
-            plt.sca(ax2)
-            plt.axvline(t)
-            # plt.arrow(t, n_from, 0, dn, color='black',
-            #           width=1e-4,
-            #           length_includes_head=True,
-            #           head_width=0.05)
-            plt.sca(ax3)
-            plt.axvline(t)
-            # plt.arrow(t, psi_from, 0, dpsi, color='black',
-            #           width=1e-4,
-            #           length_includes_head=True,
-            #           head_width=0.05)
+        if 'VISUALHOMING_INS_CORRECTION' in log:
+            for i in range(len(log['VISUALHOMING_INS_CORRECTION']['_time'])):
+                t = log['VISUALHOMING_INS_CORRECTION']['_time'][i]
+                e_from = log['VISUALHOMING_INS_CORRECTION']['e_from'][i]
+                n_from = log['VISUALHOMING_INS_CORRECTION']['n_from'][i]
+                e_to = log['VISUALHOMING_INS_CORRECTION']['e_to'][i]
+                n_to = log['VISUALHOMING_INS_CORRECTION']['n_to'][i]
+                de = e_to - e_from
+                dn = n_to - n_from
+                psi_from = log['VISUALHOMING_INS_CORRECTION']['psi_from'][i]
+                psi_to = log['VISUALHOMING_INS_CORRECTION']['psi_to'][i]
+                dpsi = psi_to - psi_from
+                plt.sca(ax1)
+                plt.axvline(t)
+                # plt.arrow(t, e_from, 0, de, color='black',
+                #           width=1e-4,
+                #           length_includes_head=True,
+                #           head_width=0.05)
+                plt.sca(ax2)
+                plt.axvline(t)
+                # plt.arrow(t, n_from, 0, dn, color='black',
+                #           width=1e-4,
+                #           length_includes_head=True,
+                #           head_width=0.05)
+                plt.sca(ax3)
+                plt.axvline(t)
+                # plt.arrow(t, psi_from, 0, dpsi, color='black',
+                #           width=1e-4,
+                #           length_includes_head=True,
+                #           head_width=0.05)
 
     def plot_vectors(log):
         for i in range(len(log['VISUALHOMING']['_time'])):
