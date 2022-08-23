@@ -34,7 +34,7 @@ def crazyflie_log_to_signals(folder_name):
     # Find relevant files
     ins_correction_fn = glob.glob(os.path.join(folder_name, '*-ins_correction*.csv'))
     map_fn = glob.glob(os.path.join(folder_name, '*-map-*.csv'))
-    point_fn = glob.glob(os.path.join(folder_name, '*-map-*.csv'))
+    point_fn = glob.glob(os.path.join(folder_name, '*-point-*.csv'))
     pos_fn = glob.glob(os.path.join(folder_name, '*-pos-*.csv'))
     vector_fn = glob.glob(os.path.join(folder_name, '*-vector-*.csv'))
 
@@ -48,7 +48,7 @@ def crazyflie_log_to_signals(folder_name):
             '_time': (data['Timestamp'] / 1000).tolist(),
         }
     except (FileNotFoundError, IndexError, pandas.errors.EmptyDataError) as e:
-        print(e)
+        print(f'VISUALHOMING_STATE: {e}')
 
     try:
         data = pandas.read_csv(vector_fn[0])
@@ -61,7 +61,7 @@ def crazyflie_log_to_signals(folder_name):
             'source': data['vh.v_source'].tolist()
         }
     except (FileNotFoundError, IndexError, pandas.errors.EmptyDataError) as e:
-        print(e)
+        print(f'VISUALHOMING: {e}')
 
     try:
         data = pandas.read_csv(ins_correction_fn[0])
@@ -76,7 +76,7 @@ def crazyflie_log_to_signals(folder_name):
             'psi_to': data['vh.i_to_psi'].tolist(),
         }
     except (FileNotFoundError, IndexError, pandas.errors.EmptyDataError) as e:
-        print(e)
+        print(f'VISUALHOMING_INS_CORRECTION: {e}')
 
     try:
         data = pandas.read_csv(map_fn[0])
@@ -91,7 +91,7 @@ def crazyflie_log_to_signals(folder_name):
             # No data for ak_bk
         }
     except (FileNotFoundError, IndexError, pandas.errors.EmptyDataError) as e:
-        print(e)
+        print(f'VISUALHOMING_MAP: {e}')
 
     try:
         data = pandas.read_csv(point_fn[0])
@@ -105,7 +105,7 @@ def crazyflie_log_to_signals(folder_name):
             'time': (data['Timestamp'] / 1000).tolist(),
         }
     except (FileNotFoundError, IndexError, pandas.errors.EmptyDataError) as e:
-        print(e)
+        print(f'VH_EXPERIMENT: {e}')
 
     return log
 
