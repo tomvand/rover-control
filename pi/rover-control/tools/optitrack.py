@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 import numpy as np
 from scipy.spatial.transform import Rotation as R
+import scipy.optimize
 
 from copy import deepcopy
 
@@ -96,6 +97,46 @@ def clean_optitrack(ot_in):
     ot.rot_phi = phi
     ot.rot_theta = theta
     ot.rot_psi = psi
+    return ot
+
+
+def sync_optitrack_to_log(ot, log, hint=0):
+    ot = deepcopy(ot)  # Do not modify input data
+    # Coarse adjustment to start both recordings at zero
+    ot.time = np.asarray(ot.time) - ot.time[0]
+    ot.pos_n = ot.pos_n + (np.asarray(log['VISUALHOMING_STATE']['ins_n'][0]) - ot.pos_n[0])
+    ot.pos_e = ot.pos_e + (np.asarray(log['VISUALHOMING_STATE']['ins_e'][0]) - ot.pos_e[0])
+
+    log_t0 = np.Inf  # Very large
+    for signal in log.values():
+        log_t0 = min(log_t0, signal['_time'][0])
+    for signal in log.values():
+        signal['_time'] = np.asarray(signal['_time']) - log_t0
+        if 'time' in signal:
+            signal['time'] = np.asarray(signal['time']) - log_t0
+            signal['time'] = signal['_time']  # Workaround
+
+    ot.time = ot.time + hint
+
+    # Nonlinear optimization
+    # Assumes coordinate frames are roughly aligned
+    def synchronize_loss(ot_start, ot, log):
+        log_t = log['VISUALHOMING_STATE']['_time']
+        log_e = log['VISUALHOMING_STATE']['ins_e']
+        log_n = log['VISUALHOMING_STATE']['ins_n']
+        ot_t = ot.time
+        ot_e = ot.pos_e
+        ot_n = ot.pos_n
+
+        log_e = np.interp(ot_t + ot_start, log_t, log_e)
+        log_n = np.interp(ot_t + ot_start, log_t, log_n)
+
+        return np.sum((log_e - ot_e) ** 2 + (log_n - ot_n) ** 2)
+
+    r = scipy.optimize.minimize_scalar(lambda dt: synchronize_loss(dt, ot, log))
+    assert r.success
+
+    ot.time = ot.time + r.x
     return ot
 
 
