@@ -1,5 +1,9 @@
 import re
 import json
+import glob
+import os
+import pandas
+
 
 def log_to_signals(f):
     log = {}
@@ -24,6 +28,87 @@ def log_to_signals(f):
                     pass
                 log[msg][key].append(value)
     return log
+
+
+def crazyflie_log_to_signals(folder_name):
+    # Find relevant files
+    ins_correction_fn = glob.glob(os.path.join(folder_name, '*-ins_correction*.csv'))
+    map_fn = glob.glob(os.path.join(folder_name, '*-map-*.csv'))
+    point_fn = glob.glob(os.path.join(folder_name, '*-map-*.csv'))
+    pos_fn = glob.glob(os.path.join(folder_name, '*-pos-*.csv'))
+    vector_fn = glob.glob(os.path.join(folder_name, '*-vector-*.csv'))
+
+    # Read and parse files
+    log = {}
+    try:
+        data = pandas.read_csv(pos_fn[0])
+        log['VISUALHOMING_STATE'] = {
+            'ins_e': (-np.asarray(data['stateEstimate.y'])).tolist(),
+            'ins_n': data['stateEstimate.x'].tolist(),
+            '_time': data['Timestamp'].tolist(),
+        }
+    except (FileNotFoundError, IndexError) as e:
+        print(e)
+
+    try:
+        data = pandas.read_csv(vector_fn[0])
+        log['VISUALHOMING'] = {
+            '_time': data['Timestamp'].tolist(),
+            'from_e': data['vh.v_from_e'].tolist(),
+            'from_n': data['vh.v_from_n'].tolist(),
+            'to_e': data['vh.v_to_e'].tolist(),
+            'to_n': data['vh.v_to_n'].tolist(),
+            'source': data['vh.v_source'].tolist()
+        }
+    except (FileNotFoundError, IndexError) as e:
+        print(e)
+
+    try:
+        data = pandas.read_csv(ins_correction_fn[0])
+        log['VISUALHOMING_INS_CORRECTION'] = {
+            '_time': data['Timestamp'].tolist(),
+            'snapshot_index': data['vh.i_ss_idx'].tolist(),
+            'e_from': data['vh.i_from_e'].tolist(),
+            'n_from': data['vh.i_from_n'].tolist(),
+            'psi_from': data['vh.i_from_psi'].tolist(),
+            'e_to': data['vh.i_to_e'].tolist(),
+            'n_to': data['vh.i_to_n'].tolist(),
+            'psi_to': data['vh.i_to_psi'].tolist(),
+        }
+    except (FileNotFoundError, IndexError) as e:
+        print(e)
+
+    try:
+        data = pandas.read_csv(map_fn[0])
+        log['VISUALHOMING_MAP'] = {
+            '_time': data['Timestamp'].tolist(),
+            'snapshot_index': data['vh.m_ss_idx'].tolist(),
+            'snapshot_e': data['vh.m_ss_e'].tolist(),
+            'snapshot_n': data['vh.m_ss_n'].tolist(),
+            'odometry_index': data['vh.m_odo_idx'].tolist(),
+            'odometry_e': data['vh.m_odo_e'].tolist(),
+            'odometry_n': data['vh.m_odo_n'].tolist(),
+            # No data for ak_bk
+        }
+    except (FileNotFoundError, IndexError) as e:
+        print(e)
+
+    try:
+        data = pandas.read_csv(point_fn[0])
+        log['VH_EXPERIMENT'] = {
+            '_time': data['Timestamp'].tolist(),
+            'run_idx': data['vh.p_exp'].tolist(),
+            'pt_idx': data['vh.p_pt'].tolist(),
+            'north': data['vh.p_n'].tolist(),
+            'east': data['vh.p_e'].tolist(),
+            # No data for psi
+            'time': data['Timestamp'].tolist(),
+        }
+    except (FileNotFoundError, IndexError) as e:
+        print(e)
+
+    return log
+
 
 
 try:
