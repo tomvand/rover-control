@@ -1,3 +1,4 @@
+import copy
 import re
 import json
 import glob
@@ -119,12 +120,13 @@ except ImportError:
 else:
     def plot_colored(x, y, c, cmap=plt.cm.get_cmap('jet'), steps=10):
         # https://stackoverflow.com/a/54315981
+        c = copy.deepcopy(c)
         c = np.asarray(c)
         c -= np.min(c)
         c /= np.max(c)
-        c2 = c  # Not sure why python needs this...
+        # c2 = c  # Not sure why python needs this...
         it = 0
-        while it < c2.size - steps:
+        while it < c.size - steps:
             x_segm = x[it:it + steps + 1]
             y_segm = y[it:it + steps + 1]
             c_segm = cmap(c[it + steps // 2])
