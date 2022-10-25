@@ -277,16 +277,6 @@ else:
     def plot_camera(log, width=360, coeff_a=0.60, coeff_b=0.826):
         images = []
         for i in range(len(log['VISUALHOMING_CAMERA']['_time'])):
-            # K = int(len(log['VISUALHOMING_CAMERA']['snapshot_ak_bk'][i]) / 2)
-            # aki = np.asarray(log['VISUALHOMING_CAMERA']['snapshot_ak_bk'][i][:K])
-            # bki = np.asarray(log['VISUALHOMING_CAMERA']['snapshot_ak_bk'][i][K:])
-            # t = log['VISUALHOMING_CAMERA']['_time'][i]
-            # snapshot = np.zeros((1, width))
-            # bearing = np.linspace(-np.pi, np.pi, width).reshape((1, -1))
-            # for k in range(K):
-            #     akf = aki[k] * coeff_a * coeff_b ** k
-            #     bkf = bki[k] * coeff_a * coeff_b ** k
-            #     snapshot += akf * np.cos(bearing) + bkf * np.sin(bearing)
             snapshot = snapshot_to_image(log['VISUALHOMING_CAMERA']['snapshot_ak_bk'][i])
             t = log['VISUALHOMING_CAMERA']['_time'][i]
             images.append({
@@ -299,11 +289,16 @@ else:
         for img in images:
             t = round(img['time'] - tstart)
             image[t:, :] = img['image']
-        plt.imshow(image, cmap='gray')
+        plt.imshow(image, cmap='gray', extent=(-0.5, image.shape[1]-0.5, tstart + image.shape[0] - 0.5, tstart - 0.5))
         plt.axis('auto')
         plt.xticks(np.linspace(0, width, 9), np.linspace(-180, 180, 9))
         plt.xlabel('Bearing [deg]')
         plt.ylabel('Time [s]')
+
+        if 'VISUALHOMING_INS_CORRECTION' in log:
+            for i in range(len(log['VISUALHOMING_INS_CORRECTION']['_time'])):
+                t = log['VISUALHOMING_INS_CORRECTION']['_time'][i]
+                plt.axhline(t, color='red', linewidth=0.5)
 
 
 if __name__ == '__main__':
