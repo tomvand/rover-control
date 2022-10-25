@@ -3216,6 +3216,12 @@
       <field name="snapshot_ak_bk" type="int8[]"/>
     </message>
 
+    <message name="CAMERA_EXPOSURE" id="16">
+      <field name="lowest" type="uint8"/>
+      <field name="mean" type="uint8"/>
+      <field name="highest" type="uint8"/>
+    </message>
+
     <message name="IMCU_REMOTE_MAG" id="58">
       <field name="mag_x" type="int16">RAW Magnetometer Data</field>
       <field name="mag_y" type="int16"/>
