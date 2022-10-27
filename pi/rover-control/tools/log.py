@@ -266,7 +266,7 @@ else:
         K = int(len(ak_bk) / 2)
         aki = np.asarray(ak_bk[:K])
         bki = np.asarray(ak_bk[K:])
-        snapshot = np.zeros((1, width))
+        snapshot = 128 * np.ones((1, width))
         bearing = np.linspace(0, 2 * np.pi, width).reshape((1, -1))
         for k in range(K):
             akf = aki[k] * coeff_a * coeff_b ** k
@@ -289,6 +289,11 @@ else:
         for img in images:
             t = round(img['time'] - tstart)
             image[t:, :] = img['image']
+        if 'CAMERA_EXPOSURE' in log:
+            for timg in range(image.shape[0]):
+                t = tstart + timg
+                exposure = np.interp(t, log['CAMERA_EXPOSURE']['_time'], log['CAMERA_EXPOSURE']['mean'])
+                image[timg, :] -= 128 + exposure
         plt.imshow(image, cmap='gray', extent=(-0.5, image.shape[1]-0.5, tstart + image.shape[0] - 0.5, tstart - 0.5))
         plt.axis('auto')
         plt.xticks(np.linspace(0, width, 9), np.linspace(-180, 180, 9))
