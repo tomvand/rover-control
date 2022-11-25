@@ -189,18 +189,19 @@ else:
                 #           length_includes_head=True,
                 #           head_width=0.05)
 
-    def plot_vectors(log):
+    def plot_vectors(log, downsample_factor=1):
         for i in range(len(log['VISUALHOMING']['_time'])):
-            x = log['VISUALHOMING']['from_e'][i]
-            y = log['VISUALHOMING']['from_n'][i]
-            dx = log['VISUALHOMING']['to_e'][i] - x
-            dy = log['VISUALHOMING']['to_n'][i] - y
-            color = 'red' if log['VISUALHOMING']['source'][i] == 1 else 'blue'
-            plt.arrow(x, y, dx, dy, color=color,
-                      width=1e-4,
-                      alpha=0.3,
-                      length_includes_head=True,
-                      head_width=0.05)
+            if (i + 1) % downsample_factor == 0:
+                x = log['VISUALHOMING']['from_e'][i]
+                y = log['VISUALHOMING']['from_n'][i]
+                dx = log['VISUALHOMING']['to_e'][i] - x
+                dy = log['VISUALHOMING']['to_n'][i] - y
+                color = 'red' if log['VISUALHOMING']['source'][i] == 1 else 'blue'
+                plt.arrow(x, y, dx, dy, color=color,
+                          width=1e-4,
+                          alpha=0.3,
+                          length_includes_head=True,
+                          head_width=0.05)
         plt.axis('equal')
         plt.grid(True)
 
@@ -262,22 +263,23 @@ else:
         for index, odo in odometry.items():
             plt.plot(odo['e'], odo['n'], 'rx', markersize=10)
 
-    def snapshot_to_image(ak_bk, width=360, coeff_a=0.60, coeff_b=0.826):
+    def snapshot_to_image(ak_bk, width=360, coeff_a=0.60, coeff_b=0.826, Kmax=None):
         K = int(len(ak_bk) / 2)
+        Kmax = Kmax if Kmax is not None else K
         aki = np.asarray(ak_bk[:K])
         bki = np.asarray(ak_bk[K:])
         snapshot = 128 * np.ones((1, width))
         bearing = np.linspace(0, 2 * np.pi, width).reshape((1, -1))
-        for k in range(K):
+        for k in range(Kmax):
             akf = aki[k] * coeff_a * coeff_b ** k
             bkf = bki[k] * coeff_a * coeff_b ** k
             snapshot += akf * np.cos(k * bearing) + bkf * np.sin(k * bearing)
         return snapshot
 
-    def plot_camera(log, width=360, coeff_a=0.60, coeff_b=0.826):
+    def plot_camera(log, width=360, **kwargs):
         images = []
         for i in range(len(log['VISUALHOMING_CAMERA']['_time'])):
-            snapshot = snapshot_to_image(log['VISUALHOMING_CAMERA']['snapshot_ak_bk'][i])
+            snapshot = snapshot_to_image(log['VISUALHOMING_CAMERA']['snapshot_ak_bk'][i], **kwargs)
             t = log['VISUALHOMING_CAMERA']['_time'][i]
             images.append({
                 'image': snapshot,
