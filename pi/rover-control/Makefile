@@ -2,12 +2,17 @@ SHELL := /bin/bash
 
 TTY_IN ?= /dev/ttyPPRZ0
 TTY_OUT ?= /dev/ttyArduino0
+TTY_CAM ?= /dev/ttyCAM0
 
 all: venv pprzlink/pprzlink
 .PHONY: all
 
 run: all
 	source venv/bin/activate && python -m rover_control.rover_control $(TTY_IN) $(TTY_OUT)
+.PHONY: run
+
+run-record:
+	source venv/bin/activate && python -m uart_record.uart_record $(TTY_CAM)
 .PHONY: run
 
 freeze:
